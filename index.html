@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ChurchBuddy — nie chodź do kościoła sam</title>
+<meta name="description" content="Zapisuj swoje niedziele, buduj serię i trzymajcie się razem. ChurchBuddy to aplikacja dla młodych katolików.">
+<meta property="og:title" content="ChurchBuddy">
+<meta property="og:description" content="Zapisuj swoje niedziele, buduj serię i trzymajcie się razem.">
+<meta property="og:image" content="/assets/icon.png">
+<meta name="theme-color" content="#131110">
+<link rel="icon" href="/assets/icon.png">
+<script>document.documentElement.classList.add("js")</script>
+<style>
+  :root{
+    --bg:#131110; --surface:#1C1917; --surface-2:#272220;
+    --text:#F5F1EA; --text-2:#A89F93; --text-3:#6E675E;
+    --amber:#F2A33C; --ember:#C2571B; --gold:#E8B04B; --line:#2C2724;
+    --max:1120px;
+    --sans:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Inter,system-ui,sans-serif;
+    --serif:"New York","Iowan Old Style",Georgia,"Times New Roman",serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;line-height:1.5;overflow-x:hidden;
+  }
+  a{color:inherit}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+  .glow{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0}
+
+  /* nav */
+  nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);
+      background:rgba(19,17,16,.72);border-bottom:1px solid transparent;transition:border-color .3s}
+  nav.scrolled{border-color:var(--line)}
+  .nav-in{display:flex;align-items:center;gap:14px;height:64px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.01em;font-size:17px}
+  .brand img{width:28px;height:28px;border-radius:8px}
+  .nav-links{margin-left:auto;display:flex;align-items:center;gap:26px}
+  .nav-links a{color:var(--text-2);text-decoration:none;font-size:14px;font-weight:500}
+  .nav-links a:hover{color:var(--text)}
+  .lang{display:flex;gap:2px;background:var(--surface-2);border-radius:999px;padding:3px}
+  .lang button{all:unset;cursor:pointer;font-size:12px;font-weight:700;color:var(--text-3);
+               padding:4px 10px;border-radius:999px}
+  .lang button.on{background:var(--amber);color:#1C1206}
+
+  /* hero */
+  header{position:relative;padding:88px 0 40px;overflow:hidden}
+  .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;position:relative;z-index:1}
+  h1{font-size:clamp(40px,5.6vw,68px);line-height:1.02;letter-spacing:-.035em;margin:0 0 20px;font-weight:800}
+  h1 em{font-style:normal;color:var(--amber)}
+  .lede{font-size:19px;color:var(--text-2);max-width:30em;margin:0 0 30px}
+  .cta{display:flex;gap:10px;flex-wrap:wrap;max-width:440px}
+  .cta input{
+    flex:1;min-width:220px;background:var(--surface-2);border:1px solid var(--line);color:var(--text);
+    border-radius:14px;padding:15px 16px;font-size:15px;font-family:inherit;outline:none;transition:border-color .2s
+  }
+  .cta input:focus{border-color:var(--amber)}
+  .cta button{
+    all:unset;cursor:pointer;background:linear-gradient(135deg,var(--amber),var(--ember));
+    color:#1C1206;font-weight:800;font-size:15px;padding:15px 24px;border-radius:14px;transition:transform .15s,filter .2s
+  }
+  .cta button:hover{filter:brightness(1.08)}
+  .cta button:active{transform:scale(.985)}
+  .cta-note{font-size:13px;color:var(--text-3);margin-top:12px}
+  .cta-note.ok{color:var(--gold)}
+  .cta-note.err{color:#E07A6A}
+
+  /* phone */
+  .phones{position:relative;display:flex;justify-content:center;align-items:center;min-height:560px}
+  .phone{
+    width:252px;border-radius:40px;border:9px solid #262220;background:#000;
+    box-shadow:0 40px 80px -20px rgba(0,0,0,.85),0 0 0 1px rgba(255,255,255,.05);overflow:hidden;position:relative
+  }
+  .phone img{display:block;width:100%}
+  .phone::after{
+    content:"";position:absolute;top:9px;left:50%;transform:translateX(-50%);
+    width:74px;height:20px;background:#0b0a0a;border-radius:0 0 14px 14px
+  }
+  .phone.back{position:absolute;transform:rotate(-8deg) translate(-88px,26px) scale(.9);opacity:.85;z-index:0}
+  .phone.front{z-index:1;transform:rotate(2deg)}
+
+  /* sections */
+  section{padding:96px 0;position:relative}
+  .eyebrow{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin:0 0 14px}
+  h2{font-size:clamp(28px,3.4vw,42px);line-height:1.1;letter-spacing:-.03em;margin:0 0 16px;font-weight:800}
+  .sub{color:var(--text-2);font-size:17px;max-width:34em;margin:0}
+
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+  .split.rev .txt{order:2}
+
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:44px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:26px}
+  .card h3{font-size:17px;margin:14px 0 8px;letter-spacing:-.01em}
+  .card p{color:var(--text-2);font-size:14.5px;margin:0}
+  .ico{width:38px;height:38px;border-radius:11px;background:var(--surface-2);
+       display:grid;place-items:center;font-size:18px}
+
+  /* verse */
+  .verse{background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:38px 40px;max-width:640px}
+  .verse p{font-family:var(--serif);font-size:23px;line-height:1.5;margin:0 0 14px}
+  .verse span{color:var(--gold);font-size:13px;font-weight:700;letter-spacing:.04em}
+
+  /* reviews */
+  .reviews{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:40px}
+  .review{background:var(--surface);border:1px dashed var(--line);border-radius:20px;padding:26px;position:relative}
+  .review .slot{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);margin-bottom:12px}
+  .review q{display:block;font-size:16px;color:var(--text-2);font-style:italic;margin-bottom:18px}
+  .review footer{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-3)}
+  .review .av{width:30px;height:30px;border-radius:50%;background:var(--surface-2)}
+
+  /* faq */
+  details{border-bottom:1px solid var(--line);padding:20px 0}
+  details summary{cursor:pointer;font-weight:650;font-size:17px;list-style:none;display:flex;justify-content:space-between;gap:20px}
+  details summary::-webkit-details-marker{display:none}
+  details summary::after{content:"+";color:var(--amber);font-weight:400;font-size:22px;line-height:1}
+  details[open] summary::after{content:"–"}
+  details p{color:var(--text-2);margin:14px 0 0;font-size:15.5px;max-width:60em}
+
+  footer.site{border-top:1px solid var(--line);padding:48px 0 60px;color:var(--text-3);font-size:13.5px}
+  .foot{display:flex;gap:28px;flex-wrap:wrap;align-items:center}
+  .foot a{color:var(--text-2);text-decoration:none}
+  .foot a:hover{color:var(--text)}
+  .foot .sp{margin-left:auto}
+
+  .js .reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease}
+  .js .reveal.in{opacity:1;transform:none}
+
+  @media (max-width:900px){
+    .hero,.split{grid-template-columns:1fr;gap:40px}
+    .split.rev .txt{order:0}
+    .cards,.reviews{grid-template-columns:1fr}
+    .phones{min-height:520px}
+    .phone.back{display:none}
+    .nav-links a{display:none}
+    section{padding:72px 0}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .reveal{opacity:1;transform:none;transition:none}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="wrap nav-in">
+    <div class="brand"><img src="assets/icon.png" alt=""><span>ChurchBuddy</span></div>
+    <div class="nav-links">
+      <a href="#jak" data-i18n="nav1">Jak to działa</a>
+      <a href="#mapa" data-i18n="nav2">Mapa</a>
+      <a href="#faq">FAQ</a>
+      <div class="lang">
+        <button id="pl" class="on">PL</button><button id="en">EN</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<header>
+  <div class="glow" style="width:620px;height:620px;background:rgba(242,163,60,.16);top:-180px;left:-140px"></div>
+  <div class="glow" style="width:460px;height:460px;background:rgba(194,87,27,.13);top:120px;right:-160px"></div>
+  <div class="wrap hero">
+    <div>
+      <h1 data-i18n="h1">Nie chodź do kościoła <em>sam</em>.</h1>
+      <p class="lede" data-i18n="lede">Zapisz, że byłeś. Zobacz, że znajomi też byli. Trzymajcie serię razem — tak jak na Stravie, tylko w niedzielę.</p>
+      <form class="cta" id="waitlist">
+        <input type="email" id="email" required placeholder="twój@email.com" data-i18n-ph="ph">
+        <button type="submit" data-i18n="cta">Chcę dostać dostęp</button>
+      </form>
+      <p class="cta-note" id="note" data-i18n="note">Damy znać, gdy ruszy TestFlight. Zero spamu.</p>
+    </div>
+    <div class="phones">
+      <div class="phone back"><img src="assets/app-profile.png" alt="Profil w ChurchBuddy"></div>
+      <div class="phone front"><img src="assets/app-feed.png" alt="Feed w ChurchBuddy"></div>
+    </div>
+  </div>
+</header>
+
+<section id="jak">
+  <div class="wrap">
+    <p class="eyebrow" data-i18n="e1">Jak to działa</p>
+    <h2 data-i18n="h2a">Trzy sekundy po Mszy.</h2>
+    <p class="sub" data-i18n="s2a">Otwierasz, klikasz, gotowe. Reszta dzieje się sama: seria rośnie, znajomi widzą, kalendarz się zapełnia.</p>
+    <div class="cards">
+      <div class="card reveal">
+        <div class="ico">🔥</div>
+        <h3 data-i18n="c1h">Niedzielna seria</h3>
+        <p data-i18n="c1p">Każda niedziela z rzędu to +1. Msza z soboty wieczorem też się liczy.</p>
+      </div>
+      <div class="card reveal">
+        <div class="ico">👀</div>
+        <h3 data-i18n="c2h">Feed znajomych</h3>
+        <p data-i18n="c2p">Widzisz, kto był, gdzie i z kim. Wysyłasz ogień zamiast lajka.</p>
+      </div>
+      <div class="card reveal">
+        <div class="ico">🕊️</div>
+        <h3 data-i18n="c3h">Tylko dla Ciebie</h3>
+        <p data-i18n="c3p">Modlitwa i spowiedź zapisują się prywatnie. Nikt inny ich nie widzi. Nigdy.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="mapa">
+  <div class="wrap split">
+    <div class="txt">
+      <p class="eyebrow" data-i18n="e2">Mapa</p>
+      <h2 data-i18n="h2b">Zobacz, gdzie się pali.</h2>
+      <p class="sub" data-i18n="s2b">Publiczne wpisy tworzą mapę ciepła Twojego miasta — im jaśniej, tym więcej osób było w tym tygodniu. Kliknij i zobacz, co się działo.</p>
+    </div>
+    <div class="phones" style="min-height:520px">
+      <div class="phone front"><img src="assets/app-map.png" alt="Mapa ciepła w ChurchBuddy"></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap split rev">
+    <div class="txt">
+      <p class="eyebrow" data-i18n="e3">Słowo na dziś</p>
+      <h2 data-i18n="h2c">Jeden werset. Codziennie.</h2>
+      <p class="sub" data-i18n="s2c">Po polsku i po angielsku, prosto z Pisma. Odhaczasz „Amen", gdy się pomodlisz — i to też ma swoją serię.</p>
+      <div class="verse" style="margin-top:28px">
+        <p id="verse-text">„Wszystko mogę w Chrystusie, który mnie umacnia."</p>
+        <span id="verse-ref">Flp 4, 13</span>
+      </div>
+    </div>
+    <div class="phones" style="min-height:520px">
+      <div class="phone front"><img src="assets/app-share.png" alt="Dodawanie wpisu w ChurchBuddy"></div>
+    </div>
+  </div>
+</section>
+
+<section id="opinie">
+  <div class="wrap">
+    <p class="eyebrow" data-i18n="e4">Opinie</p>
+    <h2 data-i18n="h2d">Co mówią pierwsi użytkownicy.</h2>
+    <p class="sub" data-i18n="s2d">Aplikacja jest w fazie testów — tu wylądują prawdziwe opinie osób, które jej używają.</p>
+    <!-- PLACEHOLDER: zastąp prawdziwymi cytatami od testerów (imię + zgoda). Nie wymyślaj opinii. -->
+    <div class="reviews">
+      <div class="review reveal">
+        <div class="slot" data-i18n="slot">Miejsce na opinię</div>
+        <q data-i18n="q1">Wklej tu prawdziwy cytat od pierwszego testera.</q>
+        <footer><div class="av"></div><span data-i18n="f1">Imię, wiek — miasto</span></footer>
+      </div>
+      <div class="review reveal">
+        <div class="slot" data-i18n="slot">Miejsce na opinię</div>
+        <q data-i18n="q2">Najlepsze cytaty to konkret: co się zmieniło po miesiącu używania.</q>
+        <footer><div class="av"></div><span data-i18n="f1">Imię, wiek — miasto</span></footer>
+      </div>
+      <div class="review reveal">
+        <div class="slot" data-i18n="slot">Miejsce na opinię</div>
+        <q data-i18n="q3">Zapytaj testerów po dwóch tygodniach — wtedy mają już serię.</q>
+        <footer><div class="av"></div><span data-i18n="f1">Imię, wiek — miasto</span></footer>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <p class="eyebrow">FAQ</p>
+    <h2 data-i18n="h2e">Pytania, które padają najczęściej.</h2>
+    <div style="margin-top:28px;max-width:820px">
+      <details><summary data-i18n="q_a">Czy to nie spłyca wiary?</summary>
+        <p data-i18n="a_a">Aplikacja niczego nie ocenia i nie punktuje pobożności. Robi jedno: pomaga pamiętać i nie być samemu. Nieobecności nikt nie widzi — nie ma rankingów „kto lepszy".</p></details>
+      <details><summary data-i18n="q_b">Kto widzi moje wpisy?</summary>
+        <p data-i18n="a_b">Domyślnie tylko znajomi. Każdy wpis możesz oznaczyć jako publiczny — wtedy trafia na mapę. Konto da się w całości ustawić jako prywatne.</p></details>
+      <details><summary data-i18n="q_c">A modlitwa i spowiedź?</summary>
+        <p data-i18n="a_c">Zawsze prywatne. Zapisują się tylko w Twoim kalendarzu i nie ma żadnego sposobu, żeby ktoś inny je zobaczył.</p></details>
+      <details><summary data-i18n="q_d">Ile to kosztuje?</summary>
+        <p data-i18n="a_d">Nic. Powstaje po godzinach, dla wspólnoty.</p></details>
+      <details><summary data-i18n="q_e">Kiedy premiera?</summary>
+        <p data-i18n="a_e">Najpierw TestFlight dla zapisanych, potem App Store. Zostaw maila powyżej, damy znać.</p></details>
+    </div>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="wrap foot">
+    <div class="brand" style="font-size:15px"><img src="assets/icon.png" alt=""><span>ChurchBuddy</span></div>
+    <a href="mailto:czesc@churchbuddy.net">czesc@churchbuddy.net</a>
+    <a href="#" data-i18n="priv">Prywatność</a>
+    <span class="sp" data-i18n="scripture">Pismo: Uwspółcześniona Biblia Gdańska · World English Bible</span>
+  </div>
+</footer>
+
+<script>
+  // Waitlist → Supabase (anon key is public by design; RLS allows insert only).
+  const SUPABASE_URL = "https://monrkuuojieqlwjraqej.supabase.co";
+  const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vbnJrdXVvamllcWx3anJhcWVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0Mjc5NjQsImV4cCI6MjEwMTAwMzk2NH0.sQZVRzewj4JPZZo-lzi3-e-TqWdyuJScwO-VojaYmr4";
+
+  const form = document.getElementById("waitlist");
+  const note = document.getElementById("note");
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const email = document.getElementById("email").value.trim();
+    if (!email) return;
+    note.className = "cta-note";
+    note.textContent = T[lang].sending;
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/waitlist`, {
+        method: "POST",
+        headers: {
+          "apikey": SUPABASE_ANON,
+          "Authorization": `Bearer ${SUPABASE_ANON}`,
+          "Content-Type": "application/json",
+          "Prefer": "return=minimal",
+        },
+        body: JSON.stringify({ email, source: "landing" }),
+      });
+      if (res.ok || res.status === 409) {
+        note.className = "cta-note ok";
+        note.textContent = T[lang].ok;
+        form.reset();
+      } else {
+        throw new Error(String(res.status));
+      }
+    } catch {
+      note.className = "cta-note err";
+      note.textContent = T[lang].err;
+    }
+  });
+
+  // Scroll reveal
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+  }, { threshold: .18 });
+  document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+  // Safety net: nothing stays invisible if the observer never fires.
+  setTimeout(() => document.querySelectorAll(".reveal").forEach((el) => el.classList.add("in")), 1800);
+
+  const nav = document.getElementById("nav");
+  addEventListener("scroll", () => nav.classList.toggle("scrolled", scrollY > 8), { passive: true });
+
+  // Language
+  const T = {
+    pl: {
+      sending: "Wysyłam…", ok: "Jesteś na liście. Odezwiemy się 🔥", err: "Coś poszło nie tak — spróbuj jeszcze raz.",
+    },
+    en: {
+      nav1: "How it works", nav2: "Map",
+      h1: "Don't go to church <em>alone</em>.",
+      lede: "Log that you showed up. See that your friends did too. Keep the streak together — like Strava, but for Sunday.",
+      ph: "your@email.com", cta: "Get early access",
+      note: "We'll ping you when TestFlight opens. No spam.",
+      e1: "How it works", h2a: "Three seconds after Mass.",
+      s2a: "Open, tap, done. The rest takes care of itself: the streak grows, friends see it, your calendar fills in.",
+      c1h: "Sunday streak", c1p: "Every Sunday in a row is +1. Saturday vigil counts too.",
+      c2h: "Friends feed", c2p: "See who went, where, and with whom. Send fire instead of a like.",
+      c3h: "Just for you", c3p: "Prayer and confession stay private. Nobody else sees them. Ever.",
+      e2: "Map", h2b: "See where it's burning.",
+      s2b: "Public posts build a heatmap of your city — the brighter it glows, the more people showed up this week. Tap to see what happened.",
+      e3: "Word for today", h2c: "One verse. Every day.",
+      s2c: "Polish and English, straight from Scripture. Tap “Amen” when you've prayed — that has its own streak too.",
+      e4: "Reviews", h2d: "What early users say.",
+      s2d: "The app is in testing — real quotes from people using it will land here.",
+      slot: "Review slot", q1: "Paste a real quote from your first tester here.",
+      q2: "The best quotes are specific: what changed after a month of use.",
+      q3: "Ask testers after two weeks — by then they have a streak.",
+      f1: "Name, age — city",
+      h2e: "Questions that come up most.",
+      q_a: "Doesn't this trivialise faith?", a_a: "The app judges nothing and scores no one's piety. It does one thing: helps you remember, and not be alone. Absences are invisible — there are no “who's holier” leaderboards.",
+      q_b: "Who sees my posts?", a_b: "Friends only, by default. You can mark any post public — then it appears on the map. The whole account can be set to private.",
+      q_c: "And prayer and confession?", a_c: "Always private. They're saved only in your own calendar, and there is no way for anyone else to see them.",
+      q_d: "What does it cost?", a_d: "Nothing. It's built after hours, for the community.",
+      q_e: "When does it launch?", a_e: "TestFlight first for the waitlist, then the App Store. Leave your email above and we'll tell you.",
+      priv: "Privacy", scripture: "Scripture: Uwspółcześniona Biblia Gdańska · World English Bible",
+      sending: "Sending…", ok: "You're on the list. We'll be in touch 🔥", err: "Something went wrong — try again.",
+    },
+  };
+  const original = {};
+  document.querySelectorAll("[data-i18n]").forEach((el) => original[el.dataset.i18n] = el.innerHTML);
+  document.querySelectorAll("[data-i18n-ph]").forEach((el) => original[el.dataset.i18nPh] = el.placeholder);
+  let lang = "pl";
+
+  function setLang(next) {
+    lang = next;
+    document.documentElement.lang = next;
+    document.querySelectorAll("[data-i18n]").forEach((el) => {
+      const key = el.dataset.i18n;
+      el.innerHTML = next === "en" ? (T.en[key] ?? original[key]) : original[key];
+    });
+    document.querySelectorAll("[data-i18n-ph]").forEach((el) => {
+      const key = el.dataset.i18nPh;
+      el.placeholder = next === "en" ? (T.en[key] ?? original[key]) : original[key];
+    });
+    document.getElementById("verse-text").textContent = next === "en"
+      ? "“I can do all things through Christ who strengthens me.”"
+      : "„Wszystko mogę w Chrystusie, który mnie umacnia.”";
+    document.getElementById("verse-ref").textContent = next === "en" ? "Phil 4:13" : "Flp 4, 13";
+    document.getElementById("pl").classList.toggle("on", next === "pl");
+    document.getElementById("en").classList.toggle("on", next === "en");
+  }
+  document.getElementById("pl").onclick = () => setLang("pl");
+  document.getElementById("en").onclick = () => setLang("en");
+</script>
+</body>
+</html>
